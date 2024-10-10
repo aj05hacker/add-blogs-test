@@ -8,63 +8,65 @@
     <style>
         body {
             font-family: 'Open Sans', sans-serif;
-            margin: 20px;
-            max-width: 600px;
-            margin: auto;
+            background-color: #f9f9f9;
+            color: #333;
+            padding: 2em;
         }
+
         h1 {
             text-align: center;
+            margin-bottom: 1em;
             color: #4CAF50;
         }
+
         form {
+            max-width: 500px;
+            margin: 0 auto;
             display: flex;
             flex-direction: column;
-            margin-top: 20px;
         }
-        label {
-            margin-bottom: 5px;
-        }
+
         input, textarea {
-            padding: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 1em;
+            padding: 0.5em;
             border: 1px solid #ddd;
             border-radius: 5px;
         }
+
         button {
-            padding: 10px;
+            padding: 0.75em;
             background-color: #4CAF50;
-            color: white;
+            color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
+
         button:hover {
             background-color: #45a049;
+        }
+
+        #form-message {
+            text-align: center;
+            margin-top: 1em;
         }
     </style>
 </head>
 <body>
-    <h1>Admin - Update Blogs</h1>
-    <form id="add-blog-form">
-        <label for="blog-title">Blog Title</label>
-        <input type="text" id="blog-title" required>
-        
-        <label for="blog-description">Blog Description</label>
-        <textarea id="blog-description" required></textarea>
-        
-        <label for="blog-link">Blog Link</label>
-        <input type="url" id="blog-link" required>
-        
-        <label for="blog-image">Image URL</label>
-        <input type="url" id="blog-image" required>
-        
-        <button type="submit">Add Blog</button>
+    <h1>Update Blogs</h1>
+    <form id="update-blog-form">
+        <input type="text" id="blog-id" placeholder="Blog ID" required>
+        <input type="text" id="blog-title" placeholder="Blog Title" required>
+        <textarea id="blog-description" placeholder="Blog Description" required></textarea>
+        <input type="url" id="blog-link" placeholder="Blog Link" required>
+        <input type="url" id="blog-image" placeholder="Image URL" required>
+        <button type="submit">Update Blog</button>
     </form>
-    <div id="form-message" style="text-align: center;"></div>
+    <div id="form-message"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+        import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAYfSOYiMe8y4BF2Tj7e1kKgBMi6tzuiQ0",
@@ -79,39 +81,31 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const addBlogForm = document.getElementById('add-blog-form');
+        const updateBlogForm = document.getElementById('update-blog-form');
         const formMessage = document.getElementById('form-message');
 
-        addBlogForm.addEventListener('submit', async (event) => {
+        updateBlogForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
+            const blogId = document.getElementById('blog-id').value.trim();
             const title = document.getElementById('blog-title').value.trim();
             const description = document.getElementById('blog-description').value.trim();
             const link = document.getElementById('blog-link').value.trim();
             const image = document.getElementById('blog-image').value.trim();
 
-            if (!title || !description || !link || !image) {
-                formMessage.innerHTML = '<p style="color: red;">All fields are required.</p>';
-                return;
-            }
-
             try {
-                await addDoc(collection(db, "blogs"), {
+                const blogRef = doc(db, "blogs", blogId);
+                await updateDoc(blogRef, {
                     title,
                     description,
                     link,
-                    image,
+                    image
                 });
-                formMessage.innerHTML = '<p style="color: green;">Blog added successfully!</p>';
-                addBlogForm.reset();
+                formMessage.innerHTML = '<p style="color: green;">Blog updated successfully!</p>';
+                updateBlogForm.reset();
             } catch (error) {
-                console.error("Error adding document: ", error);
-                formMessage.innerHTML = '<p style="color: red;">Error adding blog.</p>';
+                formMessage.innerHTML = `<p style="color: red;">Error updating blog: ${error.message}</p>`;
             }
-
-            setTimeout(() => {
-                formMessage.innerHTML = '';
-            }, 3000);
         });
     </script>
 </body>
