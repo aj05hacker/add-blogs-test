@@ -46,7 +46,7 @@
             background-color: #45a049;
         }
 
-        #form-message {
+        #form-message, #delete-message {
             text-align: center;
             margin-top: 1em;
         }
@@ -78,6 +78,16 @@
     </style>
 </head>
 <body>
+    <h1>Add New Blog</h1>
+    <form id="add-blog-form">
+        <input type="text" id="new-blog-title" placeholder="Blog Title" required>
+        <textarea id="new-blog-description" placeholder="Blog Description" required></textarea>
+        <input type="url" id="new-blog-link" placeholder="Blog Link" required>
+        <input type="url" id="new-blog-image" placeholder="Image URL" required>
+        <button type="submit">Add Blog</button>
+    </form>
+    <div id="add-form-message"></div>
+
     <h1>Update Blogs</h1>
     <form id="update-blog-form">
         <input type="text" id="blog-id" placeholder="Blog ID" required>
@@ -105,7 +115,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAYfSOYiMe8y4BF2Tj7e1kKgBMi6tzuiQ0",
@@ -120,8 +130,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        const addBlogForm = document.getElementById('add-blog-form');
         const updateBlogForm = document.getElementById('update-blog-form');
         const deleteBlogForm = document.getElementById('delete-blog-form');
+        const addFormMessage = document.getElementById('add-form-message');
         const formMessage = document.getElementById('form-message');
         const deleteMessage = document.getElementById('delete-message');
         const blogListContainer = document.getElementById('blog-list');
@@ -145,6 +157,30 @@
                 blogListContainer.appendChild(blogItem);
             });
         }
+
+        // Add new blog event listener
+        addBlogForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const title = document.getElementById('new-blog-title').value.trim();
+            const description = document.getElementById('new-blog-description').value.trim();
+            const link = document.getElementById('new-blog-link').value.trim();
+            const image = document.getElementById('new-blog-image').value.trim();
+
+            try {
+                await addDoc(collection(db, "blogs"), {
+                    title,
+                    description,
+                    link,
+                    image
+                });
+                addFormMessage.innerHTML = '<p style="color: green;">Blog added successfully!</p>';
+                addBlogForm.reset();
+                renderBlogs(); // Refresh the blog list
+            } catch (error) {
+                addFormMessage.innerHTML = `<p style="color: red;">Error adding blog: ${error.message}</p>`;
+            }
+        });
 
         // Update blog event listener
         updateBlogForm.addEventListener('submit', async (event) => {
