@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Update Blogs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            margin: 20px;
+            max-width: 600px;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        label {
+            margin-bottom: 5px;
+        }
+        input, textarea {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin - Update Blogs</h1>
+    <form id="add-blog-form">
+        <label for="blog-title">Blog Title</label>
+        <input type="text" id="blog-title" required>
+        
+        <label for="blog-description">Blog Description</label>
+        <textarea id="blog-description" required></textarea>
+        
+        <label for="blog-link">Blog Link</label>
+        <input type="url" id="blog-link" required>
+        
+        <label for="blog-image">Image URL</label>
+        <input type="url" id="blog-image" required>
+        
+        <button type="submit">Add Blog</button>
+    </form>
+    <div id="form-message" style="text-align: center;"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAYfSOYiMe8y4BF2Tj7e1kKgBMi6tzuiQ0",
+            authDomain: "time-and-thought.firebaseapp.com",
+            projectId: "time-and-thought",
+            storageBucket: "time-and-thought.appspot.com",
+            messagingSenderId: "302383115904",
+            appId: "1:302383115904:web:a9c880021a3b102ccdc065",
+            measurementId: "G-SWE4Y6BH4M"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const addBlogForm = document.getElementById('add-blog-form');
+        const formMessage = document.getElementById('form-message');
+
+        addBlogForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const title = document.getElementById('blog-title').value.trim();
+            const description = document.getElementById('blog-description').value.trim();
+            const link = document.getElementById('blog-link').value.trim();
+            const image = document.getElementById('blog-image').value.trim();
+
+            if (!title || !description || !link || !image) {
+                formMessage.innerHTML = '<p style="color: red;">All fields are required.</p>';
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "blogs"), {
+                    title,
+                    description,
+                    link,
+                    image,
+                });
+                formMessage.innerHTML = '<p style="color: green;">Blog added successfully!</p>';
+                addBlogForm.reset();
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                formMessage.innerHTML = '<p style="color: red;">Error adding blog.</p>';
+            }
+
+            setTimeout(() => {
+                formMessage.innerHTML = '';
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
