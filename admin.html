@@ -24,6 +24,7 @@
             margin: 0 auto;
             display: flex;
             flex-direction: column;
+            margin-bottom: 2em; /* Spacing between forms */
         }
 
         input, textarea {
@@ -50,23 +51,55 @@
             text-align: center;
             margin-top: 1em;
         }
+
+        .form-section {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1em;
+            margin-bottom: 2em;
+            background-color: #fff;
+        }
+
+        .form-section h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1em;
+        }
     </style>
 </head>
 <body>
-    <h1>Update Blogs</h1>
-    <form id="update-blog-form">
-        <input type="text" id="blog-id" placeholder="Blog ID" required>
-        <input type="text" id="blog-title" placeholder="Blog Title" required>
-        <textarea id="blog-description" placeholder="Blog Description" required></textarea>
-        <input type="url" id="blog-link" placeholder="Blog Link" required>
-        <input type="url" id="blog-image" placeholder="Image URL" required>
-        <button type="submit">Update Blog</button>
-    </form>
+    <h1>Admin - Update or Add Blogs</h1>
+
+    <!-- Update Blog Form -->
+    <div class="form-section">
+        <h2>Update Blog</h2>
+        <form id="update-blog-form">
+            <input type="text" id="blog-id" placeholder="Blog ID" required>
+            <input type="text" id="blog-title-update" placeholder="Blog Title" required>
+            <textarea id="blog-description-update" placeholder="Blog Description" required></textarea>
+            <input type="url" id="blog-link-update" placeholder="Blog Link" required>
+            <input type="url" id="blog-image-update" placeholder="Image URL" required>
+            <button type="submit">Update Blog</button>
+        </form>
+    </div>
+
+    <!-- Add New Blog Form -->
+    <div class="form-section">
+        <h2>Add New Blog</h2>
+        <form id="add-blog-form">
+            <input type="text" id="blog-title" placeholder="Blog Title" required>
+            <textarea id="blog-description" placeholder="Blog Description" required></textarea>
+            <input type="url" id="blog-link" placeholder="Blog Link" required>
+            <input type="url" id="blog-image" placeholder="Image URL" required>
+            <button type="submit">Add Blog</button>
+        </form>
+    </div>
+
     <div id="form-message"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+        import { getFirestore, doc, updateDoc, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAYfSOYiMe8y4BF2Tj7e1kKgBMi6tzuiQ0",
@@ -82,16 +115,18 @@
         const db = getFirestore(app);
 
         const updateBlogForm = document.getElementById('update-blog-form');
+        const addBlogForm = document.getElementById('add-blog-form');
         const formMessage = document.getElementById('form-message');
 
+        // Handle blog update
         updateBlogForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
             const blogId = document.getElementById('blog-id').value.trim();
-            const title = document.getElementById('blog-title').value.trim();
-            const description = document.getElementById('blog-description').value.trim();
-            const link = document.getElementById('blog-link').value.trim();
-            const image = document.getElementById('blog-image').value.trim();
+            const title = document.getElementById('blog-title-update').value.trim();
+            const description = document.getElementById('blog-description-update').value.trim();
+            const link = document.getElementById('blog-link-update').value.trim();
+            const image = document.getElementById('blog-image-update').value.trim();
 
             try {
                 const blogRef = doc(db, "blogs", blogId);
@@ -105,6 +140,29 @@
                 updateBlogForm.reset();
             } catch (error) {
                 formMessage.innerHTML = `<p style="color: red;">Error updating blog: ${error.message}</p>`;
+            }
+        });
+
+        // Handle adding new blog
+        addBlogForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const title = document.getElementById('blog-title').value.trim();
+            const description = document.getElementById('blog-description').value.trim();
+            const link = document.getElementById('blog-link').value.trim();
+            const image = document.getElementById('blog-image').value.trim();
+
+            try {
+                await addDoc(collection(db, "blogs"), {
+                    title,
+                    description,
+                    link,
+                    image
+                });
+                formMessage.innerHTML = '<p style="color: green;">Blog added successfully!</p>';
+                addBlogForm.reset();
+            } catch (error) {
+                formMessage.innerHTML = `<p style="color: red;">Error adding blog: ${error.message}</p>`;
             }
         });
     </script>
