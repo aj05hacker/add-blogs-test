@@ -24,7 +24,6 @@
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            margin-bottom: 2em; /* Spacing between forms */
         }
 
         input, textarea {
@@ -52,54 +51,61 @@
             margin-top: 1em;
         }
 
-        .form-section {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 1em;
-            margin-bottom: 2em;
-            background-color: #fff;
+        #existing-blogs {
+            margin-top: 2em;
+            text-align: center;
         }
 
-        .form-section h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 1em;
+        #blog-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .blog-item {
+            background-color: #e9ecef;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .blog-item h2 {
+            margin: 0;
+        }
+
+        .blog-item p {
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
-    <h1>Admin - Update or Add Blogs</h1>
-
-    <!-- Update Blog Form -->
-    <div class="form-section">
-        <h2>Update Blog</h2>
-        <form id="update-blog-form">
-            <input type="text" id="blog-id" placeholder="Blog ID" required>
-            <input type="text" id="blog-title-update" placeholder="Blog Title" required>
-            <textarea id="blog-description-update" placeholder="Blog Description" required></textarea>
-            <input type="url" id="blog-link-update" placeholder="Blog Link" required>
-            <input type="url" id="blog-image-update" placeholder="Image URL" required>
-            <button type="submit">Update Blog</button>
-        </form>
-    </div>
-
-    <!-- Add New Blog Form -->
-    <div class="form-section">
-        <h2>Add New Blog</h2>
-        <form id="add-blog-form">
-            <input type="text" id="blog-title" placeholder="Blog Title" required>
-            <textarea id="blog-description" placeholder="Blog Description" required></textarea>
-            <input type="url" id="blog-link" placeholder="Blog Link" required>
-            <input type="url" id="blog-image" placeholder="Image URL" required>
-            <button type="submit">Add Blog</button>
-        </form>
-    </div>
-
+    <h1>Update Blogs</h1>
+    <form id="update-blog-form">
+        <input type="text" id="blog-id" placeholder="Blog ID" required>
+        <input type="text" id="blog-title" placeholder="Blog Title" required>
+        <textarea id="blog-description" placeholder="Blog Description" required></textarea>
+        <input type="url" id="blog-link" placeholder="Blog Link" required>
+        <input type="url" id="blog-image" placeholder="Image URL" required>
+        <button type="submit">Update Blog</button>
+    </form>
     <div id="form-message"></div>
+
+    <h1>Existing Blogs</h1>
+    <div id="existing-blogs">
+        <ul id="blog-list">
+            <!-- Existing blog items will be generated dynamically using JavaScript -->
+        </ul>
+    </div>
+
+    <h2>Delete Blog</h2>
+    <form id="delete-blog-form">
+        <input type="text" id="delete-blog-id" placeholder="Blog ID to delete" required>
+        <button type="submit">Delete Blog</button>
+    </form>
+    <div id="delete-message"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getFirestore, doc, updateDoc, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAYfSOYiMe8y4BF2Tj7e1kKgBMi6tzuiQ0",
@@ -115,18 +121,40 @@
         const db = getFirestore(app);
 
         const updateBlogForm = document.getElementById('update-blog-form');
-        const addBlogForm = document.getElementById('add-blog-form');
+        const deleteBlogForm = document.getElementById('delete-blog-form');
         const formMessage = document.getElementById('form-message');
+        const deleteMessage = document.getElementById('delete-message');
+        const blogListContainer = document.getElementById('blog-list');
 
-        // Handle blog update
+        // Function to render existing blogs
+        async function renderBlogs() {
+            const blogsCollection = collection(db, "blogs");
+            const blogSnapshot = await getDocs(blogsCollection);
+            blogListContainer.innerHTML = ''; // Clear existing blogs
+
+            blogSnapshot.forEach(doc => {
+                const blog = doc.data();
+                const blogItem = document.createElement('li');
+                blogItem.className = 'blog-item';
+                blogItem.innerHTML = `
+                    <h2>${blog.title} (ID: ${doc.id})</h2>
+                    <p>${blog.description}</p>
+                    <p><strong>Link:</strong> <a href="${blog.link}" target="_blank">${blog.link}</a></p>
+                    <p><strong>Image:</strong> <img src="${blog.image}" alt="${blog.title}" style="max-width: 100px;"></p>
+                `;
+                blogListContainer.appendChild(blogItem);
+            });
+        }
+
+        // Update blog event listener
         updateBlogForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
             const blogId = document.getElementById('blog-id').value.trim();
-            const title = document.getElementById('blog-title-update').value.trim();
-            const description = document.getElementById('blog-description-update').value.trim();
-            const link = document.getElementById('blog-link-update').value.trim();
-            const image = document.getElementById('blog-image-update').value.trim();
+            const title = document.getElementById('blog-title').value.trim();
+            const description = document.getElementById('blog-description').value.trim();
+            const link = document.getElementById('blog-link').value.trim();
+            const image = document.getElementById('blog-image').value.trim();
 
             try {
                 const blogRef = doc(db, "blogs", blogId);
@@ -138,33 +166,31 @@
                 });
                 formMessage.innerHTML = '<p style="color: green;">Blog updated successfully!</p>';
                 updateBlogForm.reset();
+                renderBlogs(); // Refresh the blog list
             } catch (error) {
                 formMessage.innerHTML = `<p style="color: red;">Error updating blog: ${error.message}</p>`;
             }
         });
 
-        // Handle adding new blog
-        addBlogForm.addEventListener('submit', async (event) => {
+        // Delete blog event listener
+        deleteBlogForm.addEventListener('submit', async (event) => {
             event.preventDefault();
 
-            const title = document.getElementById('blog-title').value.trim();
-            const description = document.getElementById('blog-description').value.trim();
-            const link = document.getElementById('blog-link').value.trim();
-            const image = document.getElementById('blog-image').value.trim();
+            const blogId = document.getElementById('delete-blog-id').value.trim();
 
             try {
-                await addDoc(collection(db, "blogs"), {
-                    title,
-                    description,
-                    link,
-                    image
-                });
-                formMessage.innerHTML = '<p style="color: green;">Blog added successfully!</p>';
-                addBlogForm.reset();
+                const blogRef = doc(db, "blogs", blogId);
+                await deleteDoc(blogRef);
+                deleteMessage.innerHTML = '<p style="color: green;">Blog deleted successfully!</p>';
+                deleteBlogForm.reset();
+                renderBlogs(); // Refresh the blog list
             } catch (error) {
-                formMessage.innerHTML = `<p style="color: red;">Error adding blog: ${error.message}</p>`;
+                deleteMessage.innerHTML = `<p style="color: red;">Error deleting blog: ${error.message}</p>`;
             }
         });
+
+        // Initial render of existing blogs
+        renderBlogs();
     </script>
 </body>
 </html>
