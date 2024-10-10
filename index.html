@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Professional Blog Showcase</title>
-    <!-- Google Fonts for better typography -->
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* CSS Variables for easy theme management */
+        /* Add your existing CSS here */
         :root {
             --primary-color: #4CAF50;
             --secondary-color: #ffffff;
@@ -155,56 +154,26 @@
             background-color: var(--accent-color);
         }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            nav ul {
-                flex-direction: column;
-            }
-
-            nav li {
-                margin: 10px 0;
-            }
-
-            .blog-item img {
-                height: 150px;
-            }
+        /* Admin Section Styles */
+        #admin-section {
+            margin-top: 3em;
         }
 
-        /* Animations */
-        .blog-item {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.5s forwards;
+        #admin-section h2 {
+            text-align: center;
+            margin-bottom: 1em;
+            color: var(--primary-color);
         }
 
-        .blog-item:nth-child(1) {
-            animation-delay: 0.1s;
+        #update-blog-form {
+            max-width: 500px;
+            margin: 0 auto;
         }
 
-        .blog-item:nth-child(2) {
-            animation-delay: 0.2s;
+        #update-blog-form div {
+            margin-bottom: 1em;
         }
 
-        .blog-item:nth-child(3) {
-            animation-delay: 0.3s;
-        }
-
-        .blog-item:nth-child(4) {
-            animation-delay: 0.4s;
-        }
-
-        .blog-item:nth-child(5) {
-            animation-delay: 0.5s;
-        }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Footer Styling */
         footer {
             background-color: #333;
             color: #fff;
@@ -224,7 +193,7 @@
             <ul>
                 <li><a href="#blog-list">Blog List</a></li>
                 <li><a href="#add-blog">Add Blog</a></li>
-                <li><a href="#contact">Contact</a></li>
+                <li><a href="#admin-section">Admin</a></li> <!-- Added Admin link -->
             </ul>
         </nav>
     </header>
@@ -240,28 +209,55 @@
         <!-- Add Blog Section -->
         <section id="add-blog" style="margin-top: 3em;">
             <h2>Add a New Blog</h2>
-            <form id="add-blog-form" style="max-width: 500px; margin: 0 auto;">
-                <div style="margin-bottom: 1em;">
-                    <label for="blog-title" style="display: block; margin-bottom: 0.5em;">Blog Title</label>
-                    <input type="text" id="blog-title" placeholder="Enter blog title" required style="width: 100%; padding: 0.5em; border: 1px solid #ddd; border-radius: 5px;">
+            <form id="add-blog-form">
+                <div>
+                    <label for="blog-title">Blog Title</label>
+                    <input type="text" id="blog-title" placeholder="Enter blog title" required>
                 </div>
-                <div style="margin-bottom: 1em;">
-                    <label for="blog-description" style="display: block; margin-bottom: 0.5em;">Blog Description</label>
-                    <textarea id="blog-description" placeholder="Enter blog description" required style="width: 100%; padding: 0.5em; border: 1px solid #ddd; border-radius: 5px; height: 100px;"></textarea>
+                <div>
+                    <label for="blog-description">Blog Description</label>
+                    <textarea id="blog-description" placeholder="Enter blog description" required></textarea>
                 </div>
-                <div style="margin-bottom: 1em;">
-                    <label for="blog-link" style="display: block; margin-bottom: 0.5em;">Blog Link</label>
-                    <input type="url" id="blog-link" placeholder="https://example.com/blog" required style="width: 100%; padding: 0.5em; border: 1px solid #ddd; border-radius: 5px;">
+                <div>
+                    <label for="blog-link">Blog Link</label>
+                    <input type="url" id="blog-link" placeholder="https://example.com/blog" required>
                 </div>
-                <div style="margin-bottom: 1em;">
-                    <label for="blog-image" style="display: block; margin-bottom: 0.5em;">Image URL</label>
-                    <input type="url" id="blog-image" placeholder="https://example.com/image.jpg" required style="width: 100%; padding: 0.5em; border: 1px solid #ddd; border-radius: 5px;">
+                <div>
+                    <label for="blog-image">Image URL</label>
+                    <input type="url" id="blog-image" placeholder="https://example.com/image.jpg" required>
                 </div>
-                <button type="submit" style="width: 100%; padding: 0.75em; background-color: var(--primary-color); color: var(--secondary-color); border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; transition: background-color var(--transition-speed);">
-                    Add Blog
-                </button>
+                <button type="submit">Add Blog</button>
             </form>
             <div id="form-message" style="text-align: center; margin-top: 1em;"></div>
+        </section>
+
+        <!-- Admin Section for Updating Blogs -->
+        <section id="admin-section">
+            <h2>Update Blog</h2>
+            <form id="update-blog-form">
+                <div>
+                    <label for="update-blog-id">Blog ID</label>
+                    <input type="text" id="update-blog-id" placeholder="Enter blog ID to update" required>
+                </div>
+                <div>
+                    <label for="update-blog-title">New Blog Title</label>
+                    <input type="text" id="update-blog-title" placeholder="Enter new blog title" required>
+                </div>
+                <div>
+                    <label for="update-blog-description">New Blog Description</label>
+                    <textarea id="update-blog-description" placeholder="Enter new blog description" required></textarea>
+                </div>
+                <div>
+                    <label for="update-blog-link">New Blog Link</label>
+                    <input type="url" id="update-blog-link" placeholder="https://example.com/new-blog" required>
+                </div>
+                <div>
+                    <label for="update-blog-image">New Image URL</label>
+                    <input type="url" id="update-blog-image" placeholder="https://example.com/new-image.jpg" required>
+                </div>
+                <button type="submit">Update Blog</button>
+            </form>
+            <div id="update-message" style="text-align: center; margin-top: 1em;"></div>
         </section>
     </main>
     <footer>
@@ -272,53 +268,32 @@
     <script>
         const blogListContainer = document.getElementById('blog-list-container');
         const addBlogForm = document.getElementById('add-blog-form');
+        const updateBlogForm = document.getElementById('update-blog-form');
         const formMessage = document.getElementById('form-message');
+        const updateMessage = document.getElementById('update-message');
 
-        // Initial array of blog objects
+        // Initial array of blog objects (you might want to load this from Firebase)
         const blogs = [
             {
-                title: 'Understanding JavaScript Closures',
-                description: 'A deep dive into closures in JavaScript and how to use them effectively.',
-                link: 'https://example.com/blog/javascript-closures',
-                image: 'https://via.placeholder.com/400x200?text=JavaScript+Closures'
+                                id: '1',
+                title: 'First Blog',
+                description: 'This is the first blog description.',
+                link: 'https://example.com/first-blog',
+                image: 'https://example.com/image1.jpg'
             },
             {
-                title: 'CSS Grid Layout Tutorial',
-                description: 'Learn how to create complex layouts easily with CSS Grid.',
-                link: 'https://example.com/blog/css-grid-tutorial',
-                image: 'https://via.placeholder.com/400x200?text=CSS+Grid'
-            },
-            {
-                title: 'Responsive Web Design Principles',
-                description: 'Essential principles for building responsive and user-friendly websites.',
-                link: 'https://example.com/blog/responsive-web-design',
-                image: 'https://via.placeholder.com/400x200?text=Responsive+Design'
-            },
-            {
-                title: 'Introduction to Web Accessibility',
-                description: 'Ensure your websites are accessible to all users by following these guidelines.',
-                link: 'https://example.com/blog/web-accessibility',
-                image: 'https://via.placeholder.com/400x200?text=Web+Accessibility'
-            },
-            {
-                title: 'Getting Started with React',
-                description: 'A beginner\'s guide to building dynamic user interfaces with React.',
-                link: 'https://example.com/blog/getting-started-react',
-                image: 'https://via.placeholder.com/400x200?text=React+Tutorial'
-            },
-            {
-                title: 'Mastering Flexbox in CSS',
-                description: 'Learn how to create flexible and responsive layouts with CSS Flexbox.',
-                link: 'https://example.com/blog/css-flexbox',
-                image: 'https://via.placeholder.com/400x200?text=CSS+Flexbox'
+                id: '2',
+                title: 'Second Blog',
+                description: 'This is the second blog description.',
+                link: 'https://example.com/second-blog',
+                image: 'https://example.com/image2.jpg'
             }
-            // Add more blog objects as needed
         ];
 
-        // Function to render blogs
+        // Function to render blog items
         function renderBlogs() {
-            blogListContainer.innerHTML = ''; // Clear existing blogs
-            blogs.forEach((blog, index) => {
+            blogListContainer.innerHTML = '';
+            blogs.forEach(blog => {
                 const blogItem = document.createElement('li');
                 blogItem.className = 'blog-item';
                 blogItem.innerHTML = `
@@ -333,50 +308,46 @@
             });
         }
 
-        // Initial render
-        renderBlogs();
-
-        // Handle Add Blog Form Submission
-        addBlogForm.addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent default form submission
-
-            // Get form values
-            const title = document.getElementById('blog-title').value.trim();
-            const description = document.getElementById('blog-description').value.trim();
-            const link = document.getElementById('blog-link').value.trim();
-            const image = document.getElementById('blog-image').value.trim();
-
-            // Simple validation
-            if (!title || !description || !link || !image) {
-                formMessage.innerHTML = '<p style="color: red;">All fields are required.</p>';
-                return;
-            }
-
-            // Create new blog object
+        // Handle adding a blog
+        addBlogForm.addEventListener('submit', (e) => {
+            e.preventDefault();
             const newBlog = {
-                title,
-                description,
-                link,
-                image
+                id: (blogs.length + 1).toString(),
+                title: document.getElementById('blog-title').value,
+                description: document.getElementById('blog-description').value,
+                link: document.getElementById('blog-link').value,
+                image: document.getElementById('blog-image').value
             };
-
-            // Add to blogs array
-            blogs.unshift(newBlog); // Add to the beginning
-
-            // Re-render blogs
+            blogs.push(newBlog);
             renderBlogs();
-
-            // Reset form
+            formMessage.textContent = 'Blog added successfully!';
             addBlogForm.reset();
-
-            // Show success message
-            formMessage.innerHTML = '<p style="color: green;">Blog added successfully!</p>';
-
-            // Remove message after 3 seconds
-            setTimeout(() => {
-                formMessage.innerHTML = '';
-            }, 3000);
         });
+
+        // Handle updating a blog
+        updateBlogForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const blogId = document.getElementById('update-blog-id').value;
+            const blogIndex = blogs.findIndex(blog => blog.id === blogId);
+
+            if (blogIndex !== -1) {
+                blogs[blogIndex] = {
+                    id: blogId,
+                    title: document.getElementById('update-blog-title').value,
+                    description: document.getElementById('update-blog-description').value,
+                    link: document.getElementById('update-blog-link').value,
+                    image: document.getElementById('update-blog-image').value
+                };
+                renderBlogs();
+                updateMessage.textContent = 'Blog updated successfully!';
+                updateBlogForm.reset();
+            } else {
+                updateMessage.textContent = 'Blog not found!';
+            }
+        });
+
+        // Initial rendering of blogs
+        renderBlogs();
     </script>
 </body>
 </html>
