@@ -6,7 +6,7 @@
     <title>Professional Blog Showcase</title>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* Add your existing CSS here */
+        /* CSS Variables for easy theme management */
         :root {
             --primary-color: #4CAF50;
             --secondary-color: #ffffff;
@@ -154,26 +154,22 @@
             background-color: var(--accent-color);
         }
 
-        /* Admin Section Styles */
-        #admin-section {
-            margin-top: 3em;
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+            }
+
+            nav li {
+                margin: 10px 0;
+            }
+
+            .blog-item img {
+                height: 150px;
+            }
         }
 
-        #admin-section h2 {
-            text-align: center;
-            margin-bottom: 1em;
-            color: var(--primary-color);
-        }
-
-        #update-blog-form {
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        #update-blog-form div {
-            margin-bottom: 1em;
-        }
-
+        /* Footer Styling */
         footer {
             background-color: #333;
             color: #fff;
@@ -192,8 +188,7 @@
         <nav>
             <ul>
                 <li><a href="#blog-list">Blog List</a></li>
-                <li><a href="#add-blog">Add Blog</a></li>
-                <li><a href="#admin-section">Admin</a></li> <!-- Added Admin link -->
+                <li><a href="#contact">Contact</a></li>
             </ul>
         </nav>
     </header>
@@ -205,60 +200,6 @@
                 <!-- Blog items will be generated dynamically using JavaScript -->
             </ul>
         </section>
-
-        <!-- Add Blog Section -->
-        <section id="add-blog" style="margin-top: 3em;">
-            <h2>Add a New Blog</h2>
-            <form id="add-blog-form">
-                <div>
-                    <label for="blog-title">Blog Title</label>
-                    <input type="text" id="blog-title" placeholder="Enter blog title" required>
-                </div>
-                <div>
-                    <label for="blog-description">Blog Description</label>
-                    <textarea id="blog-description" placeholder="Enter blog description" required></textarea>
-                </div>
-                <div>
-                    <label for="blog-link">Blog Link</label>
-                    <input type="url" id="blog-link" placeholder="https://example.com/blog" required>
-                </div>
-                <div>
-                    <label for="blog-image">Image URL</label>
-                    <input type="url" id="blog-image" placeholder="https://example.com/image.jpg" required>
-                </div>
-                <button type="submit">Add Blog</button>
-            </form>
-            <div id="form-message" style="text-align: center; margin-top: 1em;"></div>
-        </section>
-
-        <!-- Admin Section for Updating Blogs -->
-        <section id="admin-section">
-            <h2>Update Blog</h2>
-            <form id="update-blog-form">
-                <div>
-                    <label for="update-blog-id">Blog ID</label>
-                    <input type="text" id="update-blog-id" placeholder="Enter blog ID to update" required>
-                </div>
-                <div>
-                    <label for="update-blog-title">New Blog Title</label>
-                    <input type="text" id="update-blog-title" placeholder="Enter new blog title" required>
-                </div>
-                <div>
-                    <label for="update-blog-description">New Blog Description</label>
-                    <textarea id="update-blog-description" placeholder="Enter new blog description" required></textarea>
-                </div>
-                <div>
-                    <label for="update-blog-link">New Blog Link</label>
-                    <input type="url" id="update-blog-link" placeholder="https://example.com/new-blog" required>
-                </div>
-                <div>
-                    <label for="update-blog-image">New Image URL</label>
-                    <input type="url" id="update-blog-image" placeholder="https://example.com/new-image.jpg" required>
-                </div>
-                <button type="submit">Update Blog</button>
-            </form>
-            <div id="update-message" style="text-align: center; margin-top: 1em;"></div>
-        </section>
     </main>
     <footer>
         <p>&copy; 2024 Your Name. All rights reserved.</p>
@@ -267,32 +208,10 @@
 
     <script>
         const blogListContainer = document.getElementById('blog-list-container');
-        const addBlogForm = document.getElementById('add-blog-form');
-        const updateBlogForm = document.getElementById('update-blog-form');
-        const formMessage = document.getElementById('form-message');
-        const updateMessage = document.getElementById('update-message');
 
-        // Initial array of blog objects (you might want to load this from Firebase)
-        const blogs = [
-            {
-                                id: '1',
-                title: 'First Blog',
-                description: 'This is the first blog description.',
-                link: 'https://example.com/first-blog',
-                image: 'https://example.com/image1.jpg'
-            },
-            {
-                id: '2',
-                title: 'Second Blog',
-                description: 'This is the second blog description.',
-                link: 'https://example.com/second-blog',
-                image: 'https://example.com/image2.jpg'
-            }
-        ];
-
-        // Function to render blog items
-        function renderBlogs() {
-            blogListContainer.innerHTML = '';
+        // Function to render blogs
+        function renderBlogs(blogs) {
+            blogListContainer.innerHTML = ''; // Clear existing blogs
             blogs.forEach(blog => {
                 const blogItem = document.createElement('li');
                 blogItem.className = 'blog-item';
@@ -308,46 +227,21 @@
             });
         }
 
-        // Handle adding a blog
-        addBlogForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const newBlog = {
-                id: (blogs.length + 1).toString(),
-                title: document.getElementById('blog-title').value,
-                description: document.getElementById('blog-description').value,
-                link: document.getElementById('blog-link').value,
-                image: document.getElementById('blog-image').value
-            };
-            blogs.push(newBlog);
-            renderBlogs();
-            formMessage.textContent = 'Blog added successfully!';
-            addBlogForm.reset();
-        });
+        // Fetch blogs from Firebase Firestore
+        async function fetchBlogs() {
+            const response = await fetch('https://firestore.googleapis.com/v1/projects/YOUR_PROJECT_ID/databases/(default)/documents/blogs');
+            const data = await response.json();
+            const blogs = data.documents.map(doc => ({
+                title: doc.fields.title.stringValue,
+                description: doc.fields.description.stringValue,
+                link: doc.fields.link.stringValue,
+                image: doc.fields.image.stringValue,
+            }));
+            renderBlogs(blogs);
+        }
 
-        // Handle updating a blog
-        updateBlogForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const blogId = document.getElementById('update-blog-id').value;
-            const blogIndex = blogs.findIndex(blog => blog.id === blogId);
-
-            if (blogIndex !== -1) {
-                blogs[blogIndex] = {
-                    id: blogId,
-                    title: document.getElementById('update-blog-title').value,
-                    description: document.getElementById('update-blog-description').value,
-                    link: document.getElementById('update-blog-link').value,
-                    image: document.getElementById('update-blog-image').value
-                };
-                renderBlogs();
-                updateMessage.textContent = 'Blog updated successfully!';
-                updateBlogForm.reset();
-            } else {
-                updateMessage.textContent = 'Blog not found!';
-            }
-        });
-
-        // Initial rendering of blogs
-        renderBlogs();
+        // Initial fetch
+        fetchBlogs();
     </script>
 </body>
 </html>
