@@ -46,7 +46,7 @@
             background-color: #45a049;
         }
 
-        #form-message, #delete-message {
+        #form-message, #delete-message, #login-message, #reset-message {
             text-align: center;
             margin-top: 1em;
         }
@@ -75,47 +75,65 @@
         .blog-item p {
             margin: 5px 0;
         }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <h1>Add New Blog</h1>
-    <form id="add-blog-form">
-        <input type="text" id="new-blog-title" placeholder="Blog Title" required>
-        <textarea id="new-blog-description" placeholder="Blog Description" required></textarea>
-        <input type="url" id="new-blog-link" placeholder="Blog Link" required>
-        <input type="url" id="new-blog-image" placeholder="Image URL" required>
-        <button type="submit">Add Blog</button>
-    </form>
-    <div id="add-form-message"></div>
-
-    <h1>Update Blogs</h1>
-    <form id="update-blog-form">
-        <input type="text" id="blog-id" placeholder="Blog ID" required>
-        <input type="text" id="blog-title" placeholder="Blog Title" required>
-        <textarea id="blog-description" placeholder="Blog Description" required></textarea>
-        <input type="url" id="blog-link" placeholder="Blog Link" required>
-        <input type="url" id="blog-image" placeholder="Image URL" required>
-        <button type="submit">Update Blog</button>
-    </form>
-    <div id="form-message"></div>
-
-    <h1>Existing Blogs</h1>
-    <div id="existing-blogs">
-        <ul id="blog-list">
-            <!-- Existing blog items will be generated dynamically using JavaScript -->
-        </ul>
+    <div id="login-container">
+        <h1>Admin Login</h1>
+        <form id="login-form">
+            <input type="password" id="admin-password" placeholder="Enter Admin Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <div id="login-message"></div>
+        <button id="send-reset-email">Forgot Password?</button>
+        <div id="reset-message"></div>
     </div>
 
-    <h2>Delete Blog</h2>
-    <form id="delete-blog-form">
-        <input type="text" id="delete-blog-id" placeholder="Blog ID to delete" required>
-        <button type="submit">Delete Blog</button>
-    </form>
-    <div id="delete-message"></div>
+    <div id="admin-panel" class="hidden">
+        <h1>Add New Blog</h1>
+        <form id="add-blog-form">
+            <input type="text" id="new-blog-title" placeholder="Blog Title" required>
+            <textarea id="new-blog-description" placeholder="Blog Description" required></textarea>
+            <input type="url" id="new-blog-link" placeholder="Blog Link" required>
+            <input type="url" id="new-blog-image" placeholder="Image URL" required>
+            <button type="submit">Add Blog</button>
+        </form>
+        <div id="add-form-message"></div>
+
+        <h1>Update Blogs</h1>
+        <form id="update-blog-form">
+            <input type="text" id="blog-id" placeholder="Blog ID" required>
+            <input type="text" id="blog-title" placeholder="Blog Title" required>
+            <textarea id="blog-description" placeholder="Blog Description" required></textarea>
+            <input type="url" id="blog-link" placeholder="Blog Link" required>
+            <input type="url" id="blog-image" placeholder="Image URL" required>
+            <button type="submit">Update Blog</button>
+        </form>
+        <div id="form-message"></div>
+
+        <h1>Existing Blogs</h1>
+        <div id="existing-blogs">
+            <ul id="blog-list">
+                <!-- Existing blog items will be generated dynamically using JavaScript -->
+            </ul>
+        </div>
+
+        <h2>Delete Blog</h2>
+        <form id="delete-blog-form">
+            <input type="text" id="delete-blog-id" placeholder="Blog ID to delete" required>
+            <button type="submit">Delete Blog</button>
+        </form>
+        <div id="delete-message"></div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
         import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+        import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAYfSOYiMe8y4BF2Tj7e1kKgBMi6tzuiQ0",
@@ -129,7 +147,14 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
+        const loginForm = document.getElementById('login-form');
+        const adminPanel = document.getElementById('admin-panel');
+        const loginMessage = document.getElementById('login-message');
+        const sendResetEmailButton = document.getElementById('send-reset-email');
+        const resetMessage = document.getElementById('reset-message');
+        
         const addBlogForm = document.getElementById('add-blog-form');
         const updateBlogForm = document.getElementById('update-blog-form');
         const deleteBlogForm = document.getElementById('delete-blog-form');
@@ -137,6 +162,8 @@
         const formMessage = document.getElementById('form-message');
         const deleteMessage = document.getElementById('delete-message');
         const blogListContainer = document.getElementById('blog-list');
+
+        const adminPassword = "ajeajees"; // Admin password
 
         // Function to render existing blogs
         async function renderBlogs() {
@@ -158,6 +185,31 @@
             });
         }
 
+        // Login event listener
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const password = document.getElementById('admin-password').value.trim();
+
+            if (password === adminPassword) {
+                adminPanel.classList.remove('hidden');
+                document.getElementById('login-container').classList.add('hidden');
+                renderBlogs(); // Load existing blogs
+                loginMessage.innerHTML = ''; // Clear message
+            } else {
+                loginMessage.innerHTML = '<p style="color: red;">Incorrect password!</p>';
+            }
+        });
+
+        // Send password reset email
+        sendResetEmailButton.addEventListener('click', async () => {
+            try {
+                await sendPasswordResetEmail(auth, "admin@abdulhajees.in");
+                resetMessage.innerHTML = '<p style="color: green;">Password reset email sent!</p>';
+            } catch (error) {
+                resetMessage.innerHTML = `<p style="color: red;">Error sending email: ${error.message}</p>`;
+            }
+        });
+
         // Add new blog event listener
         addBlogForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -176,7 +228,7 @@
                 });
                 addFormMessage.innerHTML = '<p style="color: green;">Blog added successfully!</p>';
                 addBlogForm.reset();
-                renderBlogs(); // Refresh the blog list
+                renderBlogs(); // Refresh blog list
             } catch (error) {
                 addFormMessage.innerHTML = `<p style="color: red;">Error adding blog: ${error.message}</p>`;
             }
@@ -202,7 +254,7 @@
                 });
                 formMessage.innerHTML = '<p style="color: green;">Blog updated successfully!</p>';
                 updateBlogForm.reset();
-                renderBlogs(); // Refresh the blog list
+                renderBlogs(); // Refresh blog list
             } catch (error) {
                 formMessage.innerHTML = `<p style="color: red;">Error updating blog: ${error.message}</p>`;
             }
@@ -219,14 +271,11 @@
                 await deleteDoc(blogRef);
                 deleteMessage.innerHTML = '<p style="color: green;">Blog deleted successfully!</p>';
                 deleteBlogForm.reset();
-                renderBlogs(); // Refresh the blog list
+                renderBlogs(); // Refresh blog list
             } catch (error) {
                 deleteMessage.innerHTML = `<p style="color: red;">Error deleting blog: ${error.message}</p>`;
             }
         });
-
-        // Initial render of existing blogs
-        renderBlogs();
     </script>
 </body>
 </html>
