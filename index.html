@@ -264,23 +264,33 @@
         // Function to render blogs from Firestore
         async function renderBlogs() {
             const blogsCollection = collection(db, "blogs");
-            const blogSnapshot = await getDocs(blogsCollection);
-            blogListContainer.innerHTML = ''; // Clear existing blogs
+            try {
+                const blogSnapshot = await getDocs(blogsCollection);
+                blogListContainer.innerHTML = ''; // Clear existing blogs
 
-            blogSnapshot.forEach(doc => {
-                const blog = doc.data();
-                const blogItem = document.createElement('li');
-                blogItem.className = 'blog-item';
-                blogItem.innerHTML = `
-                    <img src="${blog.image}" alt="${blog.title}">
-                    <div class="blog-content">
-                        <h2>${blog.title}</h2>
-                        <p>${blog.description}</p>
-                        <a href="${blog.link}" target="_blank">Read More</a>
-                    </div>
-                `;
-                blogListContainer.appendChild(blogItem);
-            });
+                if (blogSnapshot.empty) {
+                    blogListContainer.innerHTML = '<p>No blogs available.</p>'; // Handle empty collection
+                    return;
+                }
+
+                blogSnapshot.forEach(doc => {
+                    const blog = doc.data();
+                    const blogItem = document.createElement('li');
+                    blogItem.className = 'blog-item';
+                    blogItem.innerHTML = `
+                        <img src="${blog.image}" alt="${blog.title}">
+                        <div class="blog-content">
+                            <h2>${blog.title}</h2>
+                            <p>${blog.description}</p>
+                            <a href="${blog.link}" target="_blank">Read More</a>
+                        </div>
+                    `;
+                    blogListContainer.appendChild(blogItem);
+                });
+            } catch (error) {
+                console.error("Error fetching blogs: ", error);
+                blogListContainer.innerHTML = '<p>Error loading blogs. Please try again later.</p>';
+            }
         }
 
         // Initial render
